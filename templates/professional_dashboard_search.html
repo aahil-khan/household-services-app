@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Dashboard Search</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <nav>
+        <a href="/professional_dashboard/{{user.id}}">Home</a>
+        <a href="/professional_dashboard/summary/{{user.id}}">Summary</a>
+        <a href="/professional_dashboard/search/{{user.id}}">Search</a>
+        <a href="/login">Logout</a>
+    </nav>
+    <br>
+    <form action="/professional_dashboard/search/{{user.id}}" method="POST">
+        <label for="search">Search Parameter</label>
+        <input type="text" name="search" id="search" required/><br><br>
+        <label for="search_type">Search By</label>
+        <select name="search_type" id="search_type" required>
+            <option value="date">Date</option>
+            <option value="customer_name">Customer Name</option>
+        </select><br><br>
+        <input type="submit" value="Search" />
+    </form>
+    {% if services_requests and services_requests[0] != 'empty' %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Customer Name</th>
+                <th>Contact</th>
+                <th>Date of Request</th>
+                <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in services_requests %}
+            <tr>
+                <td>{{ request.id }}</td>
+                <td>{{ request.customer_name }}</td>
+                <td>{{ request.contact }}</td>
+                <td>{{ request.date_of_request }}</td>
+                <td>{{ request.rating }} </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    {% if services_requests == [] %}
+        <p>No service requests found</p>
+    {% endif %}
+</body>
+</html>

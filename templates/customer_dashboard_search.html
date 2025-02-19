@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <nav>
+        <a href="/customer_dashboard/{{id}}">Home</a>
+        <a href="/customer_dashboard/summary/{{id}}">Summary</a>
+        <a href="/customer_dashboard/search/{{id}}">Search</a>
+        <a href="/login">Logout</a>
+    </nav>
+    <br>
+    <form action="/customer_dashboard/search/{{id}}" method="POST">
+        <label for="search">Search Parameter</label>
+        <input type="text" name="search" id="search" required/><br><br>
+        <label for="search_type">Search By</label>
+        <select name="search_type" id="search_type" required>
+            <option value="name">Name</option>
+            <option value="professional_name">Professional Name</option>
+        </select><br><br>
+        <input type="submit" value="Search" />
+    </form>
+    {% if services and services[0] != 'empty' %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Service Name</th>
+                <th>Base Price</th>
+                <th>Time Required</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr>
+                <td>{{ service.id }}</td>
+                <td>{{ service.name }}</td>
+                <td>{{ service.base_price }}</td>
+                <td>{{ service.time_required }}</td>
+                <td><button onclick="
+                    fetch('/api/service_request/{{ id }}/{{ service.id }}/{{ service.professional_id }}' , {
+                        method: 'POST'
+                    }).then(() => window.location.href = '/customer_dashboard/{{id}}')
+                ">Book</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    {% if services == [] %}
+        <p>No services found with this {{type}}</p>
+    {% endif %}
+</body>
+</html>

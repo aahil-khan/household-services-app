@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Summary</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        canvas {
+            max-height: fit-content;
+            margin: 0 550px;
+        }   
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/professional_dashboard/{{id}}">Home</a>
+        <a href="/professional_dashboard/summary/{{id}}">Summary</a>
+        <a href="/professional_dashboard/search/{{id}}">Search</a>
+        <a href="/login">Logout</a>
+    </nav>
+    <h1 style="text-align: center;">Professional Summary</h1>
+    <h3 style="text-align: center;">Service Status</h3>
+    <canvas id="serviceStatusChart"></canvas>
+    <script>
+        const ctx = document.getElementById('serviceStatusChart').getContext('2d');
+        const serviceStatusChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Received', 'Closed', 'Rejected'],
+                datasets: [{
+                    label: 'Number of Services',
+                    data: ['{{received}}' , '{{closed}}' , '{{rejected}}'], // replace with actual data
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(153, 102, 255, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+    <h3 style="text-align: center;">Ratings</h3>
+    <canvas id="ratingChart"></canvas>
+    <script>
+        const ctx2 = document.getElementById('ratingChart').getContext('2d');
+        const ratingChart = new Chart(ctx2, {
+            type: 'pie',
+            data: {
+                labels: [
+                    'Excellent',
+                    'Fair',
+                    'Poor'
+                ],
+                datasets: [{
+                    label: 'Rating',
+                    data: [
+                        '{{excellent}}',
+                        '{{fair}}',
+                        '{{poor}}'
+                    ],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(153, 102, 255, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+

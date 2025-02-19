@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Service</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>Create Service</h1>
+    <form action="/admin_dashboard/create_service" method="POST">
+        <label for="name">Service Name</label>
+        <input type="text" name="name" id="name" required/>
+        <br><br>
+        <label for="base_price">Base Price</label>
+        <input type="number" name="base_price" id="base_price" required/>
+        <br><br>
+        <label for="time_required">Time Required</label>
+        <input type="number" name="time_required" id="time_required" required/>
+        <br><br>
+        <label for="description">Description</label>
+        <textarea name="description" id="description" cols="30" rows="10"></textarea>
+        <br><br>
+        <label for="category">Category</label>
+        <select name="category" id="category" required>
+            <option value="">Select a category</option>
+            <option value="plumbing">Plumbing</option>
+            <option value="electrical">Electrical</option>
+            <option value="gardening">Gardening</option>
+            <option value="cleaning">Cleaning</option>
+        </select>
+        <br><br>
+        <label for="professional_id">Professional</label>
+        <select name="professional_id" id="professional_id" required>
+            {% for professional in professionals %}
+                <option value="{{ professional.id }}">{{ professional.name }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <input type="submit" value="Create Service" />
+        <input type="button" value="Cancel" onclick="window.location.href='/admin_dashboard'"/>
+    </form>
+</body>
+</html>
+

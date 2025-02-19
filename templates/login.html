@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <form class="background" action="/login" method="POST">
+        <label for="email">Registered Email ID</label>
+        <input type="email" name="email" required/>
+        <br><br>
+        <label for="password">Password</label>
+        <input type="password" name="password" required />
+        <br><br>
+        <input type="submit" value="Login" />
+    </form><br>
+    <a href="/register_customer">Create Account?</a>
+    <br>
+    <a href="/register_professional">Register as Professional</a>
+    <p>{{message}}</p>
+</body>
+</html>
+

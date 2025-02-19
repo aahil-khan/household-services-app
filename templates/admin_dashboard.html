@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <nav>
+        <a href="/admin_dashboard">Home</a>
+        <a href="/admin_dashboard/summary">Summary</a>
+        <a href="/admin_dashboard/search">Search</a>
+        <a href="/login">Logout</a>
+    </nav>
+    <h1>Admin Dashboard</h1>
+    <h3>Services</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Service Name</th>
+                <th>Base Price</th>
+                <th>Time Required</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr>
+                <td>{{ service.id }}</td>
+                <td>{{ service.name }}</td>
+                <td>{{ service.base_price }}</td>
+                <td>{{ service.time_required }}</td>
+                <td>
+                    <button onclick="window.location.href='/admin_dashboard/edit_service/{{ service.id }}'">edit</button> /
+                    <button onclick="
+                        fetch('/api/service/{{ service.id }}', {
+                            method: 'DELETE'
+                        }).then(() => window.location.reload())
+                    ">delete</button>
+                </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p><a href="/admin_dashboard/create_service">Create new service</a></p>
+    
+
+    <h3>Professionals</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Experience(yrs)</th>
+                <th>Service Name</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for professional in professionals %}
+            <tr>
+                <td>{{ professional.id }}</td>
+                <td>{{ professional.name }}</td>
+                <td>{{ professional.experience }}</td>
+                <td>{{ professional.service_name }}</td>
+                <td>{{ professional.approval_status }}</td>
+                <td>
+                {% if professional.approval_status == "waiting" %}
+                    
+                    <button onclick="
+                    fetch('/api/professional/approve/{{ professional.id }}' , {
+                        method: 'PUT'
+                    }).then(() => window.location.reload())">Approve</button> /
+                    
+                    
+                    <button onclick="
+                    fetch('/api/professional/reject/{{ professional.id }}' , {
+                        method: 'PUT'
+                    }).then(() => window.location.reload())">Reject</button> /
+                    
+                    
+                    <button onclick="
+                        fetch('/api/user/{{ professional.id }}', {
+                            method: 'DELETE'
+                        }).then(() => window.location.reload())
+                    ">Delete</button>
+                {% else %}
+                    
+                    
+                    <button onclick="
+                        fetch('/api/user/{{ professional.id }}', {
+                            method: 'DELETE'
+                        }).then(() => window.location.reload())
+                    ">Delete</button>
+                {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Service Requests</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Assigned Professional</th>
+                <th>Request Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service_request in service_requests %}
+            <tr>
+                <td>{{ service_request.id }}</td>
+                <td>{{ service_request.professional_name }}</td>
+                <td>{{ service_request.date_of_request }}</td>
+                <td>{{ service_request.status }}</td>
+                <td>
+                    <button onclick="
+                        fetch('/api/service_request/{{ service_request.id }}', {
+                            method: 'DELETE'
+                        }).then(() => window.location.reload())
+                    ">delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table> 
+
+
+</body>
+</html>

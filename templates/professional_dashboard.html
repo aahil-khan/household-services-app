@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <nav>
+        <a href="/professional_dashboard/{{user.id}}">Home</a>
+        <a href="/professional_dashboard/summary/{{user.id}}">Summary</a>
+        <a href="/professional_dashboard/search/{{user.id}}">Search</a>
+        <a href="/login">Logout</a>
+    </nav>
+    {% if user.approval_status == "waiting" %}
+        <h1>Please wait for approval</h1>
+    {% elif user.approval_status == "rejected" %}
+        <h1>Sorry, your profile has been rejected</h1>
+    {% else %}
+        <h1>Professional Dashboard</h1>
+        <h3>Open Service Requests</h3>
+        {% if open_service_requests %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Service Name</th>
+                    <th>Customer Name</th>
+                    <th>Request Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in open_service_requests %}
+                <tr>
+                    <td>{{ request.id }}</td>
+                    <td>{{ request.service_name }}</td>
+                    <td>{{ request.customer_name }}</td>
+                    <td>{{ request.date_of_request }}</td>
+                    <td>
+                        <button onclick="
+                            fetch('/api/service_request/accept/{{ request.id }}' , {
+                                method: 'PUT'
+                            }).then(() => window.location.reload())
+                        ">Accept</button> /
+                        <button onclick="
+                            fetch('/api/service_request/reject/{{ request.id }}' , {
+                                method: 'PUT'
+                            }).then(() => window.location.reload())
+                        ">Reject</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No open service requests</p>
+        {% endif %}
+
+        <h3>Assigned Service Requests</h3>
+        {% if assigned_service_requests %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Service Name</th>
+                    <th>Customer Name</th>
+                    <th>Request Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in assigned_service_requests %}
+                <tr>
+                    <td>{{ request.id }}</td>
+                    <td>{{ request.service_name }}</td>
+                    <td>{{ request.customer_name }}</td>
+                    <td>{{ request.date_of_request }}</td>
+                    <td>
+                        <button onclick="
+                            fetch('/api/service_request/close/{{ request.id }}' , {
+                                method: 'PUT'
+                            }).then(() => window.location.reload())
+                        ">Close</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No assigned service requests</p>
+        {% endif %}
+
+        <h3>Closed Service Requests</h3>
+        {% if closed_service_requests %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Service Name</th>
+                    <th>Customer Name</th>
+                    <th>Request Date</th>
+                    <th>Completion Date</th>
+                    <th>Rating</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in closed_service_requests %}
+                <tr>
+                    <td>{{ request.id }}</td>
+                    <td>{{ request.service_name }}</td>
+                    <td>{{ request.customer_name }}</td>
+                    <td>{{ request.date_of_request }}</td>
+                    <td>{{ request.date_of_completion }}</td>
+                    <td>{{ request.rating }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No closed service requests</p>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
+

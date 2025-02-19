@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <nav>
+        <a href="/customer_dashboard/{{id}}">Home</a>
+        <a href="/customer_dashboard/summary/{{id}}">Summary</a>
+        <a href="/customer_dashboard/search/{{id}}">Search</a>
+        <a href="/login">Logout</a>
+    </nav>
+    <h1>Customer Dashboard</h1>
+    
+    <div>
+        <h2>Available Services</h2>
+        {% if services %}
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Service Name</th>
+                <th>Base Price</th>
+                <th>Time Required</th>
+                <th>Action</th>
+            </tr>
+            {% for service in services %}
+            <tr>
+                <td>{{ service.id }}</td>
+                <td>{{ service.name }}</td>
+                <td>{{ service.base_price }}</td>
+                <td>{{ service.time_required }}</td>
+                <td><button onclick="
+                    fetch('/api/service_request/{{ id }}/{{ service.id }}/{{ service.professional_id }}' , {
+                        method: 'POST'
+                    }).then(() => window.location.reload())
+                ">Book</button></td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+            <p>No services available.</p>
+        {% endif %}
+    </div>
+
+    <div>
+        <h2>Your Service History</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Service Name</th>
+                <th>Professional Name</th>
+                <th>Contact</th>
+                <th>Status</th>
+            </tr>
+            {% for service in service_requests %}
+            <tr>
+                <td>{{ service.id }}</td>
+                <td>{{ service.service_name }}</td>
+                <td>{{ service.professional_name }}</td>
+                <td>{{ service.phone }}</td>
+                <td>{% if service.status == 'assigned' %}
+                    Assigned
+                    <button onclick="window.location.href='/rate_service/{{ service.id }}'">Close it?</button>
+                    {% else %}
+                        {{service.status}}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <p><a href="/customer_dashboard/{{id}}">Go back</a></p>        
+    </div>
+</body>
+</html>
+
