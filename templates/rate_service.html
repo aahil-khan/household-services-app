@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
+    <div class="container">
     <h1><strong>Rate Service</strong></h1>
     <form action="/rate_service/{{ service_request.id }}" method="POST">
         <label for="service_name"><strong>Service Name</strong></label>
@@ -44,6 +45,7 @@
         <input type="submit" value="Submit" />
         <input type="button" value="Cancel" onclick="window.location.href='/customer_dashboard/{{ service_request.customer_id }}'"/>
     </form>
+</div>
 </body>
 </html>
 

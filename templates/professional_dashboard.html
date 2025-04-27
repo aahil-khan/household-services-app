@@ -9,10 +9,10 @@
 <body>
     <nav>
         <a href="/professional_dashboard/{{user.id}}">Home</a>
-        <a href="/professional_dashboard/summary/{{user.id}}">Summary</a>
         <a href="/professional_dashboard/search/{{user.id}}">Search</a>
         <a href="/login">Logout</a>
     </nav>
+    <div class="container">
     {% if user.approval_status == "waiting" %}
         <h1>Please wait for approval</h1>
     {% elif user.approval_status == "rejected" %}
@@ -122,6 +122,7 @@
         <p>No closed service requests</p>
         {% endif %}
     {% endif %}
+</div>
 </body>
 </html>
 

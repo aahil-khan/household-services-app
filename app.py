@@ -160,6 +160,7 @@ def admin_dashboard_search():
             customers = User.query.filter(User.name.like("%" + search + "%")).filter_by(role="professional").all()
         elif search_type == "customer":
             professionals = User.query.filter(User.name.like("%" + search + "%")).filter_by(role="customer").all()
+
         return render_template("admin_dashboard_search.html", service_requests=service_requests, services=services, customers=customers, professionals=professionals)
     
 @app.route("/professional_dashboard/<int:id>", methods=["GET", "POST"])

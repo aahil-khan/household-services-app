@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
+    <div class="container">
     <h1>Edit Service</h1>
     <form action="/admin_dashboard/edit_service/{{ service.id }}" method="POST">
         <label for="name">Service Name</label>
@@ -24,6 +25,7 @@
         <input type="submit" value="Update Service" />
         <input type="button" value="Cancel" onclick="window.location.href='/admin_dashboard'"/>
     </form>
+</div>
 </body>
 </html>
 

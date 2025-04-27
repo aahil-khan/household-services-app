@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
+    <div class="container">
     <nav>
         <a href="/customer_dashboard/{{id}}">Home</a>
-        <a href="/customer_dashboard/summary/{{id}}">Summary</a>
         <a href="/customer_dashboard/search/{{id}}">Search</a>
         <a href="/login">Logout</a>
     </nav>
@@ -55,5 +55,6 @@
     {% if services == [] %}
         <p>No services found with this {{type}}</p>
     {% endif %}
+    </div>
 </body>
 </html>

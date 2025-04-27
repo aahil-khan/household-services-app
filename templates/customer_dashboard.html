@@ -9,15 +9,15 @@
 <body>
     <nav>
         <a href="/customer_dashboard/{{id}}">Home</a>
-        <a href="/customer_dashboard/summary/{{id}}">Summary</a>
         <a href="/customer_dashboard/search/{{id}}">Search</a>
         <a href="/login">Logout</a>
     </nav>
+    <div class="container">
     <h1>Customer Dashboard</h1>
     <h2>Looking for a service?</h2>
     <div style="display: flex; flex-wrap: wrap; justify-content: center;">
         {% for category in categories %}
-        <button style="margin: 10px; padding: 15px; border-radius: 10px; background-color: #f1f1f1;" onclick="window.location.href='/customer_dashboard/{{id}}/{{ category[0]|lower }}'">{{ category[0] }}</button>
+        <button style="margin: 10px; padding: 15px; border-radius: 10px;" onclick="window.location.href='/customer_dashboard/{{id}}/{{ category[0]|lower }}'">{{ category[0] }}</button>
         {% endfor %}
     </div>
 
@@ -48,6 +48,7 @@
             {% endfor %}
         </table>
     </div>
+</div>
 </body>
 </html>
 

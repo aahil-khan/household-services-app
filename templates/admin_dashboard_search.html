@@ -9,120 +9,121 @@
 <body>
     <nav>
         <a href="/admin_dashboard">Home</a>
-        <a href="/admin_dashboard/summary">Summary</a>
         <a href="/admin_dashboard/search">Search</a>
         <a href="/login">Logout</a>
     </nav>
     <br>
-    <form action="/admin_dashboard/search" method="POST">
-        <label for="search">Search Parameter</label>
-        <input type="text" name="search" id="search" required/><br><br>
-        <label for="search_type">Search By</label>
-        <select name="search_type" id="search_type" required>
-            <option value="service">Service</option>
-            <option value="professional">Professional</option>
-            <option value="customer">Customer</option>
-            <option value="service_request">Service Request</option>
-        </select><br><br>
-        <input type="submit" value="Search" />
-    </form>
-    {% if services and services[0] != 'empty' %}
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Base Price</th>
-                <th>Time Required</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for service in services %}
-            <tr>
-                <td>{{ service.id }}</td>
-                <td>{{ service.name }}</td>
-                <td>{{ service.base_price }}</td>
-                <td>{{ service.time_required }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
-    {% if service_requests and service_requests[0] != 'empty' %}
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Professional Name</th>
-                <th>Service Name</th>
-                <th>Customer Name</th>
-                <th>Request Date</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for request in service_requests %}
-            <tr>
-                <td>{{ request.id }}</td>
-                <td>{{ request.professional_name }}</td>
-                <td>{{ request.service_name }}</td>
-                <td>{{ request.customer_name }}</td>
-                <td>{{ request.date_of_request }}</td>
-                <td>{{ request.status }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
-    {% if customers and customers[0] != 'empty' %}
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Contact</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for customer in customers %}
-            <tr>
-                <td>{{ customer.id }}</td>
-                <td>{{ customer.name }}</td>
-                <td>{{ customer.role }}</td>
-                <td>{{ customer.contact }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
-    {% if professionals and professionals[0] != 'empty' %}
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Contact</th>
-                <th>Rating</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for professional in professionals %}
-            <tr>
-                <td>{{ professional.id }}</td>
-                <td>{{ professional.name }}</td>
-                <td>{{ professional.role }}</td>
-                <td>{{ professional.contact }}</td>
-                <td>{{ professional.rating }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
-    {% if services == [] and service_requests == [] and customers == [] and professionals == [] %}
-        <p>No results found</p>
-    {% endif %}
+    <div class="container"></div>
+        <form action="/admin_dashboard/search" method="POST">
+            <label for="search">Search Parameter</label>
+            <input type="text" name="search" id="search" required/><br><br>
+            <label for="search_type">Search By</label>
+            <select name="search_type" id="search_type" required>
+                <option value="service">Service</option>
+                <option value="professional">Professional</option>
+                <option value="customer">Customer</option>
+                <option value="service_request">Service Request</option>
+            </select><br><br>
+            <input type="submit" value="Search" />
+        </form>
+        {% if services and services[0] != 'empty' %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Base Price</th>
+                    <th>Time Required</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in services %}
+                <tr>
+                    <td>{{ service.id }}</td>
+                    <td>{{ service.name }}</td>
+                    <td>{{ service.base_price }}</td>
+                    <td>{{ service.time_required }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        {% if service_requests and service_requests[0] != 'empty' %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Professional Name</th>
+                    <th>Service Name</th>
+                    <th>Customer Name</th>
+                    <th>Request Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in service_requests %}
+                <tr>
+                    <td>{{ request.id }}</td>
+                    <td>{{ request.professional_name }}</td>
+                    <td>{{ request.service_name }}</td>
+                    <td>{{ request.customer_name }}</td>
+                    <td>{{ request.date_of_request }}</td>
+                    <td>{{ request.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        {% if customers and customers[0] != 'empty' %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Contact</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+                <tr>
+                    <td>{{ customer.id }}</td>
+                    <td>{{ customer.name }}</td>
+                    <td>{{ customer.role }}</td>
+                    <td>{{ customer.contact }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        {% if professionals and professionals[0] != 'empty' %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Contact</th>
+                    <th>Rating</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for professional in professionals %}
+                <tr>
+                    <td>{{ professional.id }}</td>
+                    <td>{{ professional.name }}</td>
+                    <td>{{ professional.role }}</td>
+                    <td>{{ professional.contact }}</td>
+                    <td>{{ professional.rating }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        {% if services == ['empty'] and service_requests == ['empty'] and customers == ['empty'] and professionals == ['empty'] %}
+            <p>No results found</p>
+        {% endif %}
+</div>
 </body>
 </html>
 
