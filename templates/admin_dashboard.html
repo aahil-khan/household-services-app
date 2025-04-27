@@ -70,17 +70,33 @@
                 <td>
                 {% if professional.approval_status == "waiting" %}
                     
+                    <select id="select-service-{{ professional.id }}" onchange="
+                        document.getElementById('approve-btn-{{ professional.id }}').disabled = (this.value === '');
+                    ">
+                        <option value="">Select Service</option>
+                        {% for s in services %}
+                            {% if s.category == professional.service_category %}
+                                <option value="{{ s.id }}|{{ s.name }}">{{ s.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select> /
+                    
+                    <button id="approve-btn-{{ professional.id }}" disabled onclick="
+                        let selectedValue = document.getElementById('select-service-{{ professional.id }}').value;
+                        let serviceId = selectedValue.split('|')[0];
+                        let serviceName = selectedValue.split('|')[1];
+                        fetch('/api/professional/approve/{{ professional.id }}', {
+                            method: 'PUT',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ service_id: serviceId , service_name: serviceName })
+                        }).then(() => window.location.reload())
+                    ">Approve</button> /
+                    
                     <button onclick="
-                    fetch('/api/professional/approve/{{ professional.id }}' , {
-                        method: 'PUT'
-                    }).then(() => window.location.reload())">Approve</button> /
-                    
-                    
-                    <button onclick="
-                    fetch('/api/professional/reject/{{ professional.id }}' , {
-                        method: 'PUT'
-                    }).then(() => window.location.reload())">Reject</button> /
-                    
+                        fetch('/api/professional/reject/{{ professional.id }}', {
+                            method: 'PUT'
+                        }).then(() => window.location.reload())
+                    ">Reject</button> /
                     
                     <button onclick="
                         fetch('/api/user/{{ professional.id }}', {
@@ -88,7 +104,6 @@
                         }).then(() => window.location.reload())
                     ">Delete</button>
                 {% else %}
-                    
                     
                     <button onclick="
                         fetch('/api/user/{{ professional.id }}', {

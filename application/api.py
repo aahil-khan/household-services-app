@@ -2,6 +2,7 @@ from flask_restful import Resource
 from application.models import Service, User, ServiceRequest
 from application.database import db
 from datetime import datetime
+from flask import request
 
 class ServiceAPI(Resource):
     def delete(self,id):
@@ -22,6 +23,9 @@ class ProfessionalAPI(Resource):
     def put(self, action, id):
         user = User.query.filter_by(id=id).first()
         if action == "approve":
+            data = request.get_json()
+            user.service_id = data['service_id']
+            user.service_name = data['service_name']
             user.approval_status = "approved"
             message = "User approved"
         elif action == "reject":

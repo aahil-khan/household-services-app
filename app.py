@@ -35,7 +35,7 @@ def login():
         user = User.query.filter_by(email=email).first()
        
         if user is not None:
-            if user.password == password:  # Plain text password comparison
+            if user.password == password:
 
                 if(user.role == "admin"):
                     return redirect("/admin_dashboard")
@@ -43,9 +43,10 @@ def login():
                     return redirect("/professional_dashboard/" + str(user.id))
                 else:
                     return redirect("/customer_dashboard/" + str(user.id))
-                
+            else:
+                return render_template("login.html", message="Invalid email or password")
         else:
-            return render_template("login.html", message="Invalid email or password")
+            return render_template("login.html", message="No user found with this email")
         
 @app.route("/register_customer", methods=["GET", "POST"])
 def register_customer():
@@ -54,6 +55,9 @@ def register_customer():
     else:
         name = request.form.get("name")
         email = request.form.get("email")
+        user = User.query.filter_by(email=email).first()
+        if user is not None:
+            return render_template("customer_signup.html", message="User with this email already exists")
         password = request.form.get("password")
 
         address = request.form.get("address")
@@ -70,6 +74,9 @@ def register_professional():
     else:
         name = request.form.get("name")
         email = request.form.get("email")
+        user = User.query.filter_by(email=email).first()
+        if user is not None:
+            return render_template("professional_signup.html", message="User with this email already exists")
         password = request.form.get("password")
         address = request.form.get("address")
         pincode = request.form.get("pin_code")
@@ -77,10 +84,10 @@ def register_professional():
         contact = request.form.get("contact")
         service_type = request.form.get("service_type")
 
-        service_id = Service.query.filter_by(category=service_type).first().id
-        service_name = Service.query.filter_by(id=service_id).first().name
+        # service_id = Service.query.filter_by(category=service_type).first().id
+        # service_name = Service.query.filter_by(id=service_id).first().name
 
-        user = User(name=name, email=email, password=password,address=address, pincode=pincode, role="professional", experience=experience, contact=contact, service_id=service_id , service_name=service_name, approval_status = "waiting")
+        user = User(name=name, email=email, password=password,address=address, pincode=pincode, role="professional", experience=experience, contact=contact, service_category = service_type ,approval_status = "waiting")
         db.session.add(user)
         db.session.commit()
         return redirect("/professional_dashboard/" + str(user.id))
@@ -103,8 +110,8 @@ def create_service():
         time_required = request.form.get("time_required")
         description = request.form.get("description")
         category = request.form.get("category")
-        professional_id = request.form.get("professional_id")
-        service = Service(name=name, base_price=base_price, time_required=time_required , description=description , category=category, professional_id=professional_id)
+        # professional_id = request.form.get("professional_id")
+        service = Service(name=name, base_price=base_price, time_required=time_required , description=description , category=category)
         db.session.add(service)
         db.session.commit()
         return redirect("/admin_dashboard")
@@ -232,7 +239,12 @@ def customer_dashboard_category(id , category):
     if user is None or user.role != "customer":
         return redirect("/login")
     
-    services = Service.query.filter_by(category=category).all()
+    services = Service.query.filter_by(category=category).join(
+        User, Service.id == User.service_id
+    ).filter(User.role == "professional").add_columns(
+        Service.id, Service.name, Service.base_price, Service.time_required, 
+        Service.description, Service.category, User.name.label("professional_name"), User.id.label("professional_id")
+    )
     
     service_requests = ServiceRequest.query.filter_by(customer_id=id).all()
     for request in service_requests:

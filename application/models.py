@@ -11,6 +11,7 @@ class User(db.Model):
     role = db.Column(db.String, nullable=False)
     service_id = db.Column(db.Integer, db.ForeignKey('Services.id'), nullable=True)
     service_name = db.Column(db.String, nullable = True)
+    service_category = db.Column(db.String, nullable = True)
     experience = db.Column(db.Integer, nullable=True)
     approval_status = db.Column(db.String, nullable=True)
     description = db.Column(db.String, nullable=True)
@@ -44,11 +45,9 @@ class ServiceRequest(db.Model):
 
 class Service(db.Model):
     __tablename__ = 'Services'
-
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False, unique=True)
     base_price = db.Column(db.Float, nullable=False)
     time_required = db.Column(db.Integer, nullable=True)
     description = db.Column(db.String, nullable=True)
     category = db.Column(db.String, nullable=False)
-    professional_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=True)

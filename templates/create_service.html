@@ -29,13 +29,13 @@
             <option value="gardening">Gardening</option>
             <option value="cleaning">Cleaning</option>
         </select>
-        <br><br>
-        <label for="professional_id">Professional</label>
-        <select name="professional_id" id="professional_id" required>
+        <!-- <br><br> -->
+        <!-- <label for="professional_id">Professional</label> -->
+        <!-- <select name="professional_id" id="professional_id" required>
             {% for professional in professionals %}
                 <option value="{{ professional.id }}">{{ professional.name }}</option>
             {% endfor %}
-        </select>
+        </select> -->
         <br><br>
         <input type="submit" value="Create Service" />
         <input type="button" value="Cancel" onclick="window.location.href='/admin_dashboard'"/>
