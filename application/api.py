@@ -7,6 +7,12 @@ from flask import request
 class ServiceAPI(Resource):
     def delete(self,id):
         service = Service.query.filter_by(id=id).first()
+        professionals = User.query.filter_by(service_id=id).all()
+        service_requests = ServiceRequest.query.filter_by(service_id=id).all()
+        for service_request in service_requests:
+            db.session.delete(service_request)
+        for professional in professionals:
+            db.session.delete(professional)
         db.session.delete(service)
         db.session.commit()
         return {"message": "Service deleted"} , 200
@@ -15,6 +21,15 @@ class ServiceAPI(Resource):
 class UserAPI(Resource):
     def delete(self,id):
         user = User.query.filter_by(id=id).first()
+        if user.role == "professional":
+            service_requests = ServiceRequest.query.filter_by(professional_id=id).all()
+        elif user.role == "customer":
+            service_requests = ServiceRequest.query.filter_by(customer_id=id).all()
+        else:
+            return {"message": "Cannot delete admin"}, 403
+        for service_request in service_requests:
+            db.session.delete(service_request)
+        
         db.session.delete(user)
         db.session.commit()
         return {"message": "User deleted"} , 200

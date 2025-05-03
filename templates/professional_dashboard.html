@@ -18,7 +18,7 @@
     {% elif user.approval_status == "rejected" %}
         <h1>Sorry, your profile has been rejected</h1>
     {% else %}
-        <h1>Professional Dashboard</h1>
+        <h1>Welcome, {{user.name}}</h1>
         <h3>Open Service Requests</h3>
         {% if open_service_requests %}
         <table>

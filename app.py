@@ -97,7 +97,8 @@ def admin_dashboard():
     services = Service.query.all()
     professionals = User.query.filter_by(role="professional").all()
     service_requests = ServiceRequest.query.all()
-    return render_template("admin_dashboard.html", services=services, professionals=professionals, service_requests=service_requests, role=request.args.get("role"))
+    users = User.query.filter_by(role="customer").all()
+    return render_template("admin_dashboard.html", services=services, professionals=professionals, service_requests=service_requests, role=request.args.get("role") , customers=users)
 
 @app.route("/admin_dashboard/create_service", methods=["GET", "POST"])
 def create_service():
@@ -186,36 +187,6 @@ def professional_dashboard(id):
 
     return render_template("professional_dashboard.html", user=user, open_service_requests=open_service_requests , assigned_service_requests=assigned_service_requests , closed_service_requests=closed_service_requests)
 
-@app.route("/professional_dashboard/summary/<int:id>", methods=["GET", "POST"])
-def professional_dashboard_summary(id):
-    user = User.query.filter_by(id=id).first()
-    if user is None or user.role != "professional":
-        return redirect("/login")
-
-    service_requests = ServiceRequest.query.filter_by(professional_id=id).all()
-    received = len([s for s in service_requests if s.status == "requested"])
-    rejected = len([s for s in service_requests if s.status == "rejected"])
-    closed = len([s for s in service_requests if s.status == "closed"])
-
-    ratings = [s.rating for s in service_requests if s.rating is not None]
-    excellent = len([r for r in ratings if r > 8])
-    fair = len([r for r in ratings if r >= 5 and r <= 8])
-    poor = len([r for r in ratings if r < 5])
-
-
-    return render_template("professional_summary.html", id = user.id , received = received , rejected = rejected , closed = closed , excellent = excellent , fair = fair , poor = poor)
-
-@app.route("/admin_dashboard/summary", methods=["GET", "POST"])
-def admin_dashboard_summary():
-    service_requests = ServiceRequest.query.all()
-    ratings = [s.rating for s in service_requests if s.rating is not None]
-    excellent = len([r for r in ratings if r > 8])
-    fair = len([r for r in ratings if r >= 5 and r <= 8])
-    poor = len([r for r in ratings if r < 5])
-    assigned = len([s for s in service_requests if s.status == "assigned"])
-    closed = len([s for s in service_requests if s.status == "closed"])
-    rejected = len([s for s in service_requests if s.status == "rejected"])
-    return render_template("admin_summary.html", assigned=assigned, closed=closed, rejected=rejected, excellent=excellent, fair=fair, poor=poor)
 
 @app.route("/customer_dashboard/<int:id>", methods=["GET", "POST"])
 def customer_dashboard(id):
@@ -231,7 +202,7 @@ def customer_dashboard(id):
         request.service_name = Service.query.filter_by(id=request.service_id).first().name
         request.phone = User.query.filter_by(id=request.professional_id).first().contact
 
-    return render_template("customer_dashboard.html", id = user.id ,  categories = categories , service_requests = service_requests)
+    return render_template("customer_dashboard.html", id = user.id , user =user,  categories = categories , service_requests = service_requests)
 
 @app.route("/customer_dashboard/<int:id>/<string:category>", methods=["GET", "POST"])
 def customer_dashboard_category(id , category):
@@ -265,21 +236,8 @@ def customer_dashboard_category(id , category):
         if not is_assigned and not is_requested:
             available_services.append(service)
     services = available_services
-    return render_template("customer_dashboard_select.html", id = user.id ,services = services, service_requests = service_requests)
+    return render_template("customer_dashboard_select.html", id = user.id,services = services, service_requests = service_requests)
 
-
-@app.route("/customer_dashboard/summary/<int:id>", methods=["GET", "POST"])
-def customer_dashboard_summary(id):
-    user = User.query.filter_by(id=id).first()
-
-    if user is None or user.role != "customer":
-        return redirect("/login")
-    
-    service_requests = ServiceRequest.query.filter_by(customer_id=id).all()
-    assigned = len([s for s in service_requests if s.status == "assigned"])
-    requested = len([s for s in service_requests if s.status == "requested"])
-    closed = len([s for s in service_requests if s.status == "closed"])
-    return render_template("customer_summary.html",id=user.id, assigned=assigned, requested=requested, closed=closed)
 
 @app.route("/customer_dashboard/search/<int:id>", methods=["GET", "POST"])
 def customer_dashboard_search(id):

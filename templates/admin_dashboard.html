@@ -15,11 +15,14 @@
     <div class="container">
     <h1>Admin Dashboard</h1>
     <h3>Services</h3>
+    {% if services %}
+    <div class="table-container">
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <th>Sno</th>
                 <th>Service Name</th>
+                <th>Category</th>
                 <th>Base Price</th>
                 <th>Time Required</th>
                 <th>Action</th>
@@ -28,8 +31,9 @@
         <tbody>
             {% for service in services %}
             <tr>
-                <td>{{ service.id }}</td>
+                <td>{{ loop.index }}</td>
                 <td>{{ service.name }}</td>
+                <td>{{ service.category }}</td>
                 <td>{{ service.base_price }}</td>
                 <td>{{ service.time_required }}</td>
                 <td>
@@ -44,17 +48,24 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+    {% else %}
+        <p>No services found</p>
+    {% endif %}
     <p><a href="/admin_dashboard/create_service">Create new service</a></p>
     
 
     <h3>Professionals</h3>
+    {% if professionals %}
+    <div class="table-container">
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <th>Sno</th>
                 <th>Name</th>
                 <th>Experience(yrs)</th>
                 <th>Service Name</th>
+                <th>Category</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
@@ -62,10 +73,11 @@
         <tbody>
             {% for professional in professionals %}
             <tr>
-                <td>{{ professional.id }}</td>
+                <td>{{ loop.index }}</td>
                 <td>{{ professional.name }}</td>
                 <td>{{ professional.experience }}</td>
                 <td>{{ professional.service_name }}</td>
+                <td>{{ professional.service_category }}</td>
                 <td>{{ professional.approval_status }}</td>
                 <td>
                 {% if professional.approval_status == "waiting" %}
@@ -116,12 +128,50 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+    {% else %}
+        <p>No professionals found</p>
+    {% endif %}
 
-    <h3>Service Requests</h3>
+    <h3>Users</h3>
+    {% if customers %}
+    <div class="table-container">
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <th>Sno</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ customer.name }}</td>
+                <td>{{ customer.email }}</td>
+                <td><button onclick="
+                    fetch('/api/user/{{ customer.id }}', {
+                        method: 'DELETE'
+                    }).then(() => window.location.reload())
+                ">delete</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+        <p>No customers found</p>
+    {% endif %}
+
+    <h3>Service Requests</h3>
+    {% if service_requests %}
+    <div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Sno</th>
                 <th>Assigned Professional</th>
                 <th>Request Date</th>
                 <th>Status</th>
@@ -131,7 +181,7 @@
         <tbody>
             {% for service_request in service_requests %}
             <tr>
-                <td>{{ service_request.id }}</td>
+                <td>{{ loop.index }}</td>
                 <td>{{ service_request.professional_name }}</td>
                 <td>{{ service_request.date_of_request }}</td>
                 <td>{{ service_request.status }}</td>
@@ -146,6 +196,10 @@
             {% endfor %}
         </tbody>
     </table> 
+    </div>
+    {% else %}
+        <p>No service requests found</p>
+    {% endif %}
 
 </div>
 </body>

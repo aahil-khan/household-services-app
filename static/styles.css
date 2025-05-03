@@ -58,12 +58,17 @@ h1, h2 {
     margin-bottom: 1rem;
 }
 
+.table-container {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 2rem;
+}
+
 table {
     width: 100%;
     background: #fff;
     border-collapse: separate;
     border-spacing: 0 0.5rem;
-    margin-bottom: 2rem;
 }
 
 table th, table td {
@@ -117,4 +122,9 @@ canvas {
     margin: 20px auto;
 }
 
+p{
+    text-align: center;
+    margin: 1rem 0;
+    color: #555;
+}
 
