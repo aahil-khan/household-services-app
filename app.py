@@ -320,7 +320,7 @@ api.add_resource(ProfessionalAPI,"/api/professional/<string:action>/<int:id>")
 api.add_resource(ServiceRequestAPI,"/api/service_request/<int:id>" , "/api/service_request/<string:action>/<int:request_id>" , "/api/service_request/<int:customer_id>/<int:service_id>/<int:professional_id>")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port = 5005)
 
 
 
