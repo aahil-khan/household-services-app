@@ -30,20 +30,31 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
+                    <th>Sno</th>
+                    <th>Service Name</th>
+                    <th>Category</th>
                     <th>Base Price</th>
                     <th>Time Required</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for service in services %}
                 <tr>
-                    <td>{{ service.id }}</td>
+                    <td>{{ loop.index }}</td>
                     <td>{{ service.name }}</td>
+                    <td>{{ service.category }}</td>
                     <td>{{ service.base_price }}</td>
                     <td>{{ service.time_required }}</td>
-                </tr>
+                    <td>
+                        <button onclick="window.location.href='/admin_dashboard/edit_service/{{ service.id }}'">edit</button> /
+                        <button onclick="
+                            fetch('/api/service/{{ service.id }}', {
+                                method: 'DELETE'
+                            }).then(() => window.location.reload())
+                        ">delete</button>
+                    </td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -52,45 +63,99 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Professional Name</th>
-                    <th>Service Name</th>
-                    <th>Customer Name</th>
+                    <th>Sno</th>
+                    <th>Assigned Professional</th>
                     <th>Request Date</th>
                     <th>Status</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                {% for request in service_requests %}
+                {% for service_request in service_requests %}
                 <tr>
-                    <td>{{ request.id }}</td>
-                    <td>{{ request.professional_name }}</td>
-                    <td>{{ request.service_name }}</td>
-                    <td>{{ request.customer_name }}</td>
-                    <td>{{ request.date_of_request }}</td>
-                    <td>{{ request.status }}</td>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ service_request.professional_name }}</td>
+                    <td>{{ service_request.date_of_request }}</td>
+                    <td>{{ service_request.status }}</td>
+                    <td>
+                        <button onclick="
+                            fetch('/api/service_request/{{ service_request.id }}', {
+                                method: 'DELETE'
+                            }).then(() => window.location.reload())
+                        ">delete</button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
-        </table>
+        </table> 
         {% endif %}
         {% if customers and customers[0] != 'empty' %}
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Sno</th>
                     <th>Name</th>
-                    <th>Role</th>
-                    <th>Contact</th>
+                    <th>Experience(yrs)</th>
+                    <th>Service Name</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for customer in customers %}
                 <tr>
-                    <td>{{ customer.id }}</td>
+                    <td>{{ loop.index }}</td>
                     <td>{{ customer.name }}</td>
-                    <td>{{ customer.role }}</td>
-                    <td>{{ customer.contact }}</td>
+                    <td>{{ customer.experience }}</td>
+                    <td>{{ customer.service_name }}</td>
+                    <td>{{ customer.service_category }}</td>
+                    <td>{{ customer.approval_status }}</td>
+                    <td>
+                    {% if customer.approval_status == "waiting" %}
+                        
+                        <select id="select-service-{{ customer.id }}" onchange="
+                            document.getElementById('approve-btn-{{ customer.id }}').disabled = (this.value === '');
+                        ">
+                            <option value="">Select Service</option>
+                            {% for s in services_data %}
+                                {% if s.category == customer.service_category %}
+                                    <option value="{{ s.id }}|{{ s.name }}">{{ s.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select> /
+                        
+                        <button id="approve-btn-{{ customer.id }}" disabled onclick="
+                            let selectedValue = document.getElementById('select-service-{{ customer.id }}').value;
+                            let serviceId = selectedValue.split('|')[0];
+                            let serviceName = selectedValue.split('|')[1];
+                            fetch('/api/customer/approve/{{ customer.id }}', {
+                                method: 'PUT',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({ service_id: serviceId , service_name: serviceName })
+                            }).then(() => window.location.reload())
+                        ">Approve</button> /
+                        
+                        <button onclick="
+                            fetch('/api/customer/reject/{{ customer.id }}', {
+                                method: 'PUT'
+                            }).then(() => window.location.reload())
+                        ">Reject</button> /
+                        
+                        <button onclick="
+                            fetch('/api/user/{{ customer.id }}', {
+                                method: 'DELETE'
+                            }).then(() => window.location.reload())
+                        ">Delete</button>
+                    {% else %}
+                        
+                        <button onclick="
+                            fetch('/api/user/{{ customer.id }}', {
+                                method: 'DELETE'
+                            }).then(() => window.location.reload())
+                        ">Delete</button>
+                    {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -99,31 +164,39 @@
         {% if professionals and professionals[0] != 'empty' %}
         <table>
             <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Role</th>
-                    <th>Contact</th>
-                    <th>Rating</th>
-                </tr>
+            <tr>
+                <th>Sno</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
             </thead>
             <tbody>
-                {% for professional in professionals %}
-                <tr>
-                    <td>{{ professional.id }}</td>
-                    <td>{{ professional.name }}</td>
-                    <td>{{ professional.role }}</td>
-                    <td>{{ professional.contact }}</td>
-                    <td>{{ professional.rating }}</td>
-                </tr>
-                {% endfor %}
+            {% for professional in professionals %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ professional.name }}</td>
+                <td>{{ professional.email }}</td>
+                <td><button onclick="
+                fetch('/api/user/{{ professional.id }}', {
+                    method: 'DELETE'
+                }).then(() => window.location.reload())
+                ">delete</button></td>
+            </tr>
+            {% endfor %}
             </tbody>
         </table>
         {% endif %}
-        {% if services == ['empty'] and service_requests == ['empty'] and customers == ['empty'] and professionals == ['empty'] %}
-            <p>No results found</p>
+        {% if searched %}
+            {% if (services|length == 0 or (services|length == 1 and services[0] == 'empty'))
+                and (service_requests|length == 0 or (service_requests|length == 1 and service_requests[0] == 'empty'))
+                and (customers|length == 0 or (customers|length == 1 and customers[0] == 'empty'))
+                and (professionals|length == 0 or (professionals|length == 1 and professionals[0] == 'empty')) %}
+                <p>No results found</p>
+            {% endif %}
         {% endif %}
 </div>
 </body>
 </html>
+``` 
 

@@ -148,6 +148,7 @@ def admin_dashboard_search():
         search_type = request.form.get("search_type")
         service_requests = ['empty']
         services = ['empty']
+        services_data = Service.query.all()
         customers = ['empty']
         professionals = ['empty']
         if search_type == "service_request":
@@ -162,7 +163,7 @@ def admin_dashboard_search():
         elif search_type == "customer":
             professionals = User.query.filter(User.name.like("%" + search + "%")).filter_by(role="customer").all()
 
-        return render_template("admin_dashboard_search.html", service_requests=service_requests, services=services, customers=customers, professionals=professionals)
+        return render_template("admin_dashboard_search.html",searched='true',services_data=services_data, service_requests=service_requests, services=services, customers=customers, professionals=professionals)
     
 @app.route("/professional_dashboard/<int:id>", methods=["GET", "POST"])
 def professional_dashboard(id):
@@ -256,7 +257,7 @@ def customer_dashboard_search(id):
             services = []
             professionals = User.query.filter(User.name.contains(search)).all()
             for professional in professionals:
-                services.extend(Service.query.filter_by(professional_id=professional.id).all())
+                services.extend(Service.query.filter_by(id=professional.service_id).all())
 
         booked_service_ids = [s.service_id for s in ServiceRequest.query.filter_by(customer_id=id).filter_by(status="assigned").filter_by(status="requested").all()]
         print(booked_service_ids)
