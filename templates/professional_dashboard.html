@@ -103,6 +103,7 @@
                     <th>Request Date</th>
                     <th>Completion Date</th>
                     <th>Rating</th>
+                    <th>Review</th>
                 </tr>
             </thead>
             <tbody>
@@ -114,6 +115,7 @@
                     <td>{{ request.date_of_request }}</td>
                     <td>{{ request.date_of_completion }}</td>
                     <td>{{ request.rating }}</td>
+                    <td><button onclick="alert('{{ request.review }}')">View Review</button></td>
                 </tr>
                 {% endfor %}
             </tbody>

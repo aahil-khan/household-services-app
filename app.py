@@ -1,7 +1,7 @@
 import os
 from flask import Flask , request, redirect
 from flask import render_template
-from application.models import User, Service , ServiceRequest
+from application.models import User, Service , ServiceRequest, ServiceCategory, Review, Coupon
 from application.database import db
 from application.api import *
 from flask_restful import Api
@@ -70,7 +70,8 @@ def register_customer():
 @app.route("/register_professional", methods=["GET", "POST"])
 def register_professional():
     if request.method == "GET":
-        return render_template("professional_signup.html")
+        service_categories = ServiceCategory.query.all()
+        return render_template("professional_signup.html" , service_categories=service_categories)
     else:
         name = request.form.get("name")
         email = request.form.get("email")
@@ -83,39 +84,116 @@ def register_professional():
         experience = request.form.get("experience")
         contact = request.form.get("contact")
         service_type = request.form.get("service_type")
+        category_id = ServiceCategory.query.filter_by(name=service_type).first().id
 
-        # service_id = Service.query.filter_by(category=service_type).first().id
-        # service_name = Service.query.filter_by(id=service_id).first().name
+        #service_id = ServiceCategory.query.filter_by(category=service_type).first().id
+        #service_name = Service.query.filter_by(id=service_id).first().name
 
-        user = User(name=name, email=email, password=password,address=address, pincode=pincode, role="professional", experience=experience, contact=contact, service_category = service_type ,approval_status = "waiting")
+        user = User(name=name, email=email, password=password,address=address, pincode=pincode, role="professional", experience=experience, contact=contact, category_id = category_id,approval_status = "waiting")
         db.session.add(user)
         db.session.commit()
         return redirect("/professional_dashboard/" + str(user.id))
     
 @app.route("/admin_dashboard", methods=["GET", "POST"])
 def admin_dashboard():
-    services = Service.query.all()
+    services = db.session.query(Service, ServiceCategory).join(
+        ServiceCategory, Service.category_id == ServiceCategory.id
+    ).add_columns(
+        Service.id, Service.name, Service.base_price, Service.time_required, 
+        Service.description, ServiceCategory.name.label("category")
+    ).all()
+
     professionals = User.query.filter_by(role="professional").all()
+
+    professionals = db.session.query(User, ServiceCategory, Service).join(
+        ServiceCategory, User.category_id == ServiceCategory.id
+    ).outerjoin(
+        Service, User.service_id == Service.id
+    ).filter(User.role == "professional").add_columns(
+        User.id, User.name, User.email, User.address, User.pincode, 
+        User.experience, User.contact, User.approval_status, 
+        ServiceCategory.name.label("service_category"), 
+        Service.name.label("service_name")
+    ).all()
+
     service_requests = ServiceRequest.query.all()
+    for srequest in service_requests:
+        srequest.professional_name = User.query.filter_by(id=srequest.professional_id).first().name
+        srequest.customer_name = User.query.filter_by(id=srequest.customer_id).first().name
+        srequest.service_name = Service.query.filter_by(id=srequest.service_id).first().name
+        srequest.review = Review.query.filter_by(servicereq_id=srequest.id).first().comment
+
+    coupons = Coupon.query.all()
+
     users = User.query.filter_by(role="customer").all()
-    return render_template("admin_dashboard.html", services=services, professionals=professionals, service_requests=service_requests, role=request.args.get("role") , customers=users)
+    return render_template("admin_dashboard.html", services=services, professionals=professionals, service_requests=service_requests, role=request.args.get("role") , customers=users , coupons=coupons)
 
 @app.route("/admin_dashboard/create_service", methods=["GET", "POST"])
 def create_service():
     if request.method == "GET":
         professionals = User.query.filter_by(role="professional").all()
-        return render_template("create_service.html" , professionals=professionals)
+        service_categories = ServiceCategory.query.all()
+        return render_template("create_service.html" , professionals=professionals, service_categories=service_categories)
     else:
         name = request.form.get("name")
         base_price = request.form.get("base_price")
         time_required = request.form.get("time_required")
         description = request.form.get("description")
         category = request.form.get("category")
+        categoryid = ServiceCategory.query.filter_by(name=category).first().id
+
         # professional_id = request.form.get("professional_id")
-        service = Service(name=name, base_price=base_price, time_required=time_required , description=description , category=category)
+        service = Service(name=name, base_price=base_price, time_required=time_required , description=description , category_id=categoryid)
         db.session.add(service)
         db.session.commit()
         return redirect("/admin_dashboard")
+
+@app.route("/admin_dashboard/create_coupon", methods=["GET", "POST"])
+def create_coupon():
+    if request.method == "GET":
+        return render_template("create_coupon.html")
+    else:
+        code = request.form.get("code")
+        discount = request.form.get("discount")
+        valid_from = request.form.get("valid_from")
+        valid_to = request.form.get("valid_to")
+        valid_from = datetime.strptime(valid_from, "%Y-%m-%d").date()
+        valid_to = datetime.strptime(valid_to, "%Y-%m-%d").date()
+        if valid_from > valid_to:
+            return render_template("create_coupon.html", message="Invalid date range")
+        max_uses = request.form.get("max_uses")
+        coupon = Coupon(code=code, discount_percent=discount, valid_from=valid_from, valid_to=valid_to, max_uses=max_uses)
+        db.session.add(coupon)
+        db.session.commit()
+        return redirect("/admin_dashboard")
+
+@app.route("/admin_dashboard/edit_coupon/<int:id>", methods=["GET", "POST"])
+def edit_coupon(id):
+    if request.method == "GET":
+        coupon = Coupon.query.filter_by(id=id).first()
+        if coupon is not None:
+            return render_template("edit_coupon.html", coupon=coupon)
+        else:
+            return redirect("/admin_dashboard")
+    else:
+        code = request.form.get("code")
+        discount = request.form.get("discount")
+        valid_from = request.form.get("valid_from")
+        valid_to = request.form.get("valid_to")
+        valid_from = datetime.strptime(valid_from, "%Y-%m-%d").date()
+        valid_to = datetime.strptime(valid_to, "%Y-%m-%d").date()
+        if valid_from > valid_to:
+            return render_template("create_coupon.html", message="Invalid date range")
+        max_uses = request.form.get("max_uses")
+        coupon = Coupon.query.filter_by(id=id).first()
+        coupon.code = code
+        coupon.discount_percent = discount
+        coupon.valid_from = valid_from
+        coupon.valid_to = valid_to
+        coupon.max_uses = max_uses
+        db.session.commit()
+        return redirect("/admin_dashboard")
+
 
 @app.route("/admin_dashboard/edit_service/<int:id>", methods=["GET", "POST"])
 def edit_service(id):
@@ -185,6 +263,8 @@ def professional_dashboard(id):
     for request in closed_service_requests:
         request.customer_name = User.query.filter_by(id=request.customer_id).first().name
         request.service_name = Service.query.filter_by(id=request.service_id).first().name
+        request.rating = Review.query.filter_by(servicereq_id=request.id).first().rating
+        request.review = Review.query.filter_by(servicereq_id=request.id).first().comment
 
     return render_template("professional_dashboard.html", user=user, open_service_requests=open_service_requests , assigned_service_requests=assigned_service_requests , closed_service_requests=closed_service_requests)
 
@@ -195,13 +275,13 @@ def customer_dashboard(id):
 
     if user is None or user.role != "customer":
         return redirect("/login")
-    categories = Service.query.with_entities(Service.category).distinct().all()
+    categories = ServiceCategory.query.all()
 
     service_requests = ServiceRequest.query.filter_by(customer_id=id).all()
-    
     for request in service_requests:
         request.service_name = Service.query.filter_by(id=request.service_id).first().name
         request.phone = User.query.filter_by(id=request.professional_id).first().contact
+        request.professional_name = User.query.filter_by(id=request.professional_id).first().name
 
     return render_template("customer_dashboard.html", id = user.id , user =user,  categories = categories , service_requests = service_requests)
 
@@ -212,17 +292,20 @@ def customer_dashboard_category(id , category):
     if user is None or user.role != "customer":
         return redirect("/login")
     
-    services = Service.query.filter_by(category=category).join(
+    category_id = ServiceCategory.query.filter_by(name=category).first().id
+    
+    services = Service.query.filter_by(category_id=category_id).join(
         User, Service.id == User.service_id
     ).filter(User.role == "professional").add_columns(
         Service.id, Service.name, Service.base_price, Service.time_required, 
-        Service.description, Service.category, User.name.label("professional_name"), User.id.label("professional_id")
+        Service.description, User.name.label("professional_name"), User.id.label("professional_id")
     )
     
     service_requests = ServiceRequest.query.filter_by(customer_id=id).all()
     for request in service_requests:
         request.service_name = Service.query.filter_by(id=request.service_id).first().name
         request.phone = User.query.filter_by(id=request.professional_id).first().contact
+        request.professional_name = User.query.filter_by(id=request.professional_id).first().name
 
     available_services = []
     for service in services:
@@ -300,14 +383,20 @@ def rate_service(id):
         service_request = ServiceRequest.query.filter_by(id=id).first()
         service_request.service_name = Service.query.filter_by(id=service_request.service_id).first().name
         service_request.phone = User.query.filter_by(id=service_request.professional_id).first().contact
+        service_request.professional_name = User.query.filter_by(id=service_request.professional_id).first().name
         return render_template("rate_service.html", service_request=service_request)
     else:
         rating = request.form.get("rating")
         remarks = request.form.get("remarks")
+        review = Review(servicereq_id=id, rating=rating, comment=remarks)
+        db.session.add(review)
+        db.session.flush()  # Ensure the review ID is generated
+        review_id = review.id
+
+        #trigger?
         service_request = ServiceRequest.query.filter_by(id=id).first()
-        service_request.rating = rating
-        service_request.remarks = remarks
         service_request.status = "closed"
+        service_request.review_id = review_id
         service_request.date_of_completion = datetime.now().strftime("%d-%m-%y")
         db.session.commit()
         return redirect("/customer_dashboard/" + str(service_request.customer_id))
@@ -318,6 +407,7 @@ api.add_resource(ServiceAPI,"/api/service/<int:id>")
 api.add_resource(UserAPI,"/api/user/<int:id>")
 api.add_resource(ProfessionalAPI,"/api/professional/<string:action>/<int:id>")
 api.add_resource(ServiceRequestAPI,"/api/service_request/<int:id>" , "/api/service_request/<string:action>/<int:request_id>" , "/api/service_request/<int:customer_id>/<int:service_id>/<int:professional_id>")
+api.add_resource(CouponAPI,"/api/coupon/<int:id>")
 
 if __name__ == "__main__":
     app.run(debug=True, port = 5005)

@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from application.models import Service, User, ServiceRequest
+from application.models import Service, User, ServiceRequest, Coupon
 from application.database import db
 from datetime import datetime
 from flask import request
@@ -78,3 +78,10 @@ class ServiceRequestAPI(Resource):
         db.session.add(service_request)
         db.session.commit()
         return {"message": "Service request created"}, 200
+
+class CouponAPI(Resource):
+    def delete(self, id):
+        coupon = Coupon.query.filter_by(id=id).first()
+        db.session.delete(coupon)
+        db.session.commit()
+        return {"message": "Coupon deleted"} , 200

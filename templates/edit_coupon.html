@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Coupon</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+    <h1>Edit Coupon</h1>
+    <form action="/admin_dashboard/edit_coupon/{{ coupon.id }}" method="POST">
+        <label for="code">Coupon Code</label>
+        <input type="text" name="code" id="code" value="{{ coupon.code }}" required/>
+        <br><br>
+        <label for="discount">Discount (%)</label>
+        <input type="number" name="discount" id="discount" value="{{ coupon.discount_percent }}" required/>
+        <br><br>
+        <label for="valid_from">Valid From</label>
+        <input type="date" name="valid_from" id="valid_from" value="{{ coupon.valid_from }}" required/>
+        <br><br>
+        <label for="valid_to">Valid To</label>
+        <input type="date" name="valid_to" id="valid_to" value="{{ coupon.valid_to }}" required/>
+        <br><br>
+        <label for="max_uses">Max Uses</label>
+        <input type="number" name="max_uses" id="max_uses" value="{{ coupon.max_uses }}" required/>
+        <br><br>
+        <input type="submit" value="Update Coupon" />
+        <input type="button" value="Cancel" onclick="window.location.href='/admin_dashboard'"/>
+    </form>
+</div>
+</body>
+</html>

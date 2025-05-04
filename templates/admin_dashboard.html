@@ -172,6 +172,7 @@
         <thead>
             <tr>
                 <th>Sno</th>
+                <th>Customer Name</th>
                 <th>Assigned Professional</th>
                 <th>Request Date</th>
                 <th>Status</th>
@@ -182,6 +183,7 @@
             {% for service_request in service_requests %}
             <tr>
                 <td>{{ loop.index }}</td>
+                <td>{{ service_request.customer_name }}</td>
                 <td>{{ service_request.professional_name }}</td>
                 <td>{{ service_request.date_of_request }}</td>
                 <td>{{ service_request.status }}</td>
@@ -200,7 +202,46 @@
     {% else %}
         <p>No service requests found</p>
     {% endif %}
-
-</div>
+    <h3>Coupons</h3>
+    {% if coupons %}
+    <div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Sno</th>
+                <th>Code</th>
+                <th>Discount</th>
+                <th>Expiry Date</th>
+                <th>Max Uses</th>
+                <th>Current Uses</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for coupon in coupons %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ coupon.code }}</td>
+                <td>{{ coupon.discount_percent }}%</td>
+                <td>{{ coupon.valid_to }}</td>
+                <td>{{ coupon.max_uses }}</td>
+                <td>{{ coupon.current_uses }}</td>
+                <td>
+                    <button onclick="window.location.href='/admin_dashboard/edit_coupon/{{ coupon.id }}'">edit</button> /
+                    <button onclick="
+                    fetch('/api/coupon/{{ coupon.id }}', {
+                        method: 'DELETE'
+                    }).then(() => window.location.reload())
+                ">delete</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+        <p>No coupons found</p>
+    {% endif %}
+    <p><a href="/admin_dashboard/create_coupon">Create new coupon</a></p>
+    </div>
 </body>
 </html>

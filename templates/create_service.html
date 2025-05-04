@@ -25,10 +25,9 @@
         <label for="category">Category</label>
         <select name="category" id="category" required>
             <option value="">Select a category</option>
-            <option value="plumbing">Plumbing</option>
-            <option value="electrical">Electrical</option>
-            <option value="gardening">Gardening</option>
-            <option value="cleaning">Cleaning</option>
+            {% for category in service_categories %}
+            <option value="{{ category.name }}">{{ category.name }}</option>
+            {% endfor %}
         </select>
         <!-- <br><br> -->
         <!-- <label for="professional_id">Professional</label> -->
