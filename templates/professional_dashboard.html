@@ -43,7 +43,7 @@
                     <td>{{ request.id }}</td>
                     <td>{{ request.service_name }}</td>
                     <td>{{ request.customer_name }}</td>
-                    <td>{{ request.date_of_request }}</td>
+                    <td>{{ request.date_of_request.date() }}</td>
                     <td>
                         <button onclick="
                             fetch('/api/service_request/accept/{{ request.id }}' , {
@@ -82,7 +82,7 @@
                     <td>{{ request.id }}</td>
                     <td>{{ request.service_name }}</td>
                     <td>{{ request.customer_name }}</td>
-                    <td>{{ request.date_of_request }}</td>
+                    <td>{{ request.date_of_request.date() }}</td>
                     <td>
                         <button onclick="
                             fetch('/api/service_request/close/{{ request.id }}' , {
@@ -119,7 +119,7 @@
                     <td>{{ request.service_name }}</td>
                     <td>{{ request.customer_name }}</td>
                     <td>{{ request.date_of_request }}</td>
-                    <td>{{ request.date_of_completion }}</td>
+                    <td>{{ request.date_of_completion.date() }}</td>
                     <td>{{ request.rating }}</td>
                     <td><button onclick="alert('{{ request.review }}')">View Review</button></td>
                 </tr>

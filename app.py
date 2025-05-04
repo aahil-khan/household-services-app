@@ -398,6 +398,7 @@ def professional_dashboard_search(id):
         for req in services_requests:
             req.customer_name = User.query.filter_by(id=req.customer_id).first().name
             req.contact = User.query.filter_by(id=req.customer_id).first().contact
+            req.rating = Review.query.filter_by(servicereq_id=req.id).first().rating
     wallet = Wallet.query.filter_by(user_id=id).first()
 
     return render_template("professional_dashboard_search.html",wallet = wallet, user=user, services_requests=services_requests)
@@ -424,8 +425,9 @@ def rate_service(id):
                 if coupon.valid_from > datetime.now() or coupon.valid_to < datetime.now():
                     return redirect("/rate_service/" + str(id) + "?message=Coupon code is not valid")
                 coupon.current_uses += 1
-                if coupon.max_uses == coupon.current_uses:
-                    db.session.delete(coupon)
+                #now handeled using trigger
+                # if coupon.max_uses == coupon.current_uses:
+                #     db.session.delete(coupon)
             else:
                 return redirect("/rate_service/" + str(id) + "?message=Invalid coupon code")
             
@@ -433,10 +435,11 @@ def rate_service(id):
         db.session.add(review)
         db.session.flush()  # Ensure the review ID is generated
 
-        #trigger?
         service_request = ServiceRequest.query.filter_by(id=id).first()
         service_request.status = "closed"
-        service_request.date_of_completion = datetime.now().strftime("%d-%m-%y")
+
+        #now handeled using trigger
+        #service_request.date_of_completion = datetime.now().strftime("%d-%m-%y")
         
         #payment
         if coupon_code == "":
@@ -448,12 +451,13 @@ def rate_service(id):
         payment = Payment(customer_id=service_request.customer_id, professional_id=service_request.professional_id, amount=price , servicereq_id=service_request.id)
         db.session.add(payment)
 
+        #now handeled using trigger
         #update wallets
-        wallet_customer = Wallet.query.filter_by(user_id=service_request.customer_id).first()
-        wallet_professional = Wallet.query.filter_by(user_id=service_request.professional_id).first()
+        # wallet_customer = Wallet.query.filter_by(user_id=service_request.customer_id).first()
+        # wallet_professional = Wallet.query.filter_by(user_id=service_request.professional_id).first()
 
-        wallet_customer.balance -= price
-        wallet_professional.balance += price
+        # wallet_customer.balance -= price
+        # wallet_professional.balance += price
 
 
         db.session.commit()

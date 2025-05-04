@@ -74,7 +74,7 @@
                 <td>{{ loop.index }}</td>
                 <td>{{ coupon.code }}</td>
                 <td>{{ coupon.discount_percent }}%</td>
-                <td>{{ coupon.valid_to }}</td>
+                <td>{{ coupon.valid_to.date() }}</td>
                 <td>{{ coupon.max_uses }}</td>
                 <td>{{ coupon.current_uses }}</td>
                 <td>
@@ -224,7 +224,7 @@
                 <td>{{ loop.index }}</td>
                 <td>{{ service_request.customer_name }}</td>
                 <td>{{ service_request.professional_name }}</td>
-                <td>{{ service_request.date_of_request }}</td>
+                <td>{{ service_request.date_of_request.date() }}</td>
                 <td>{{ service_request.status }}</td>
                 <td>
                     <button onclick="
@@ -241,8 +241,8 @@
     {% else %}
         <p>No service requests found</p>
     {% endif %}
-    {% if payments %}
     <h3>Payments</h3>
+    {% if payments %}
     <div class="table-container">
     <table>
         <thead>
