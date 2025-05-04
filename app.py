@@ -14,6 +14,8 @@ current_dir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__, template_folder="templates")
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(current_dir , "database/household-services-app.db")
 
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:pgadmin@localhost/household-services-app'
+
 db.init_app(app)
 app.app_context().push()
 
@@ -430,12 +432,10 @@ def rate_service(id):
         review = Review(servicereq_id=id, rating=rating, comment=remarks)
         db.session.add(review)
         db.session.flush()  # Ensure the review ID is generated
-        review_id = review.id
 
         #trigger?
         service_request = ServiceRequest.query.filter_by(id=id).first()
         service_request.status = "closed"
-        service_request.review_id = review_id
         service_request.date_of_completion = datetime.now().strftime("%d-%m-%y")
         
         #payment

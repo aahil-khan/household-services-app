@@ -97,7 +97,6 @@ class ServiceRequest(db.Model):
     date_of_request = db.Column(db.String, nullable=True)
     date_of_completion = db.Column(db.String, nullable=True)
     status = db.Column(db.String, default='requested')
-    review_id = db.Column(db.Integer, db.ForeignKey('Review.id' , ondelete = 'CASCADE'), nullable=True)
 
     service = db.relationship('Service', backref='service_requests', foreign_keys=[service_id])
 
