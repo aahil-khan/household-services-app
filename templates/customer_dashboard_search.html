@@ -13,48 +13,55 @@
         <a href="/login">Logout</a>
     </nav>
     <div class="container">
-    <br>
-    <form action="/customer_dashboard/search/{{id}}" method="POST">
-        <label for="search">Search Parameter</label>
-        <input type="text" name="search" id="search" required/><br><br>
-        <label for="search_type">Search By</label>
-        <select name="search_type" id="search_type" required>
-            <option value="name">Name</option>
-            <option value="professional_name">Professional Name</option>
-        </select><br><br>
-        <input type="submit" value="Search" />
-    </form>
-    {% if services and services[0] != 'empty' %}
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Service Name</th>
-                <th>Base Price</th>
-                <th>Time Required</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for service in services %}
-            <tr>
-                <td>{{ service.id }}</td>
-                <td>{{ service.name }}</td>
-                <td>{{ service.base_price }}</td>
-                <td>{{ service.time_required }}</td>
-                <td><button onclick="
-                    fetch('/api/service_request/{{ id }}/{{ service.id }}/{{ service.professional_id }}' , {
-                        method: 'POST'
-                    }).then(() => window.location.href = '/customer_dashboard/{{id}}')
-                ">Book</button></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
-    {% if services == [] %}
-        <p>No services found with this {{type}}</p>
-    {% endif %}
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Search Services</h1>
+            <div class="wallet-balance" style="background: #f0f0f0; padding: 15px; border-radius: 8px;">
+                <h3 style="margin: 0;">Wallet Balance</h3>
+                <p style="margin: 5px 0; font-size: 1.2em; font-weight: bold;">₹{{wallet.balance}}</p>
+            </div>
+        </div>
+        <br>
+        <form action="/customer_dashboard/search/{{id}}" method="POST">
+            <label for="search">Search Parameter</label>
+            <input type="text" name="search" id="search" required/><br><br>
+            <label for="search_type">Search By</label>
+            <select name="search_type" id="search_type" required>
+                <option value="name">Name</option>
+                <option value="professional_name">Professional Name</option>
+            </select><br><br>
+            <input type="submit" value="Search" />
+        </form>
+        {% if services and services[0] != 'empty' %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Service Name</th>
+                    <th>Base Price</th>
+                    <th>Time Required</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in services %}
+                <tr>
+                    <td>{{ service.id }}</td>
+                    <td>{{ service.name }}</td>
+                    <td>{{ service.base_price }}</td>
+                    <td>{{ service.time_required }}</td>
+                    <td><button onclick="
+                        fetch('/api/service_request/{{ id }}/{{ service.id }}/{{ service.professional_id }}' , {
+                            method: 'POST'
+                        }).then(() => window.location.href = '/customer_dashboard/{{id}}')
+                    ">Book</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        {% if services == [] %}
+            <p>No services found with this {{type}}</p>
+        {% endif %}
     </div>
 </body>
 </html>

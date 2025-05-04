@@ -24,23 +24,6 @@ class User(db.Model):
     )
 
 
-class ServiceRequest(db.Model):
-    __tablename__ = 'Services_requests'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    service_id = db.Column(db.Integer, db.ForeignKey('Services.id', ondelete = 'CASCADE'), nullable=False)
-    customer_id = db.Column(db.Integer, db.ForeignKey('Users.id' , ondelete = 'CASCADE'), nullable=True)
-    professional_id = db.Column(db.Integer, db.ForeignKey('Users.id' , ondelete = 'CASCADE'), nullable=True)
-    date_of_request = db.Column(db.String, nullable=True)
-    date_of_completion = db.Column(db.String, nullable=True)
-    status = db.Column(db.String, default='requested')
-    review_id = db.Column(db.Integer, db.ForeignKey('Review.id' , ondelete = 'CASCADE'), nullable=True)
-
-    __table_args__ = (
-    db.CheckConstraint("status IN ('requested', 'assigned', 'closed')"),
-    )
-
-
 class Service(db.Model):
     __tablename__ = 'Services'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -67,6 +50,7 @@ class Review(db.Model):
 
 
 class Wallet(db.Model):
+    __tablename__ = 'Wallet'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False, unique=True)
     balance = db.Column(db.Float, default=10000.0)
@@ -83,8 +67,29 @@ class Coupon(db.Model):
     current_uses = db.Column(db.Integer, default=0)
 
 class Payment(db.Model):
+    __tablename__ = 'Payment'
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('Users.id' , ondelete = 'CASCADE'), nullable=True)
     professional_id = db.Column(db.Integer, db.ForeignKey('Users.id' , ondelete = 'CASCADE'), nullable=True)
+    servicereq_id = db.Column(db.Integer, db.ForeignKey('Services_requests.id' , ondelete = 'CASCADE'), nullable=True)
     amount = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now)
+
+
+class ServiceRequest(db.Model):
+    __tablename__ = 'Services_requests'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    service_id = db.Column(db.Integer, db.ForeignKey('Services.id', ondelete = 'CASCADE'), nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey('Users.id' , ondelete = 'CASCADE'), nullable=True)
+    professional_id = db.Column(db.Integer, db.ForeignKey('Users.id' , ondelete = 'CASCADE'), nullable=True)
+    date_of_request = db.Column(db.String, nullable=True)
+    date_of_completion = db.Column(db.String, nullable=True)
+    status = db.Column(db.String, default='requested')
+    review_id = db.Column(db.Integer, db.ForeignKey('Review.id' , ondelete = 'CASCADE'), nullable=True)
+
+    service = db.relationship('Service', backref='service_requests', foreign_keys=[service_id])
+
+    __table_args__ = (
+    db.CheckConstraint("status IN ('requested', 'assigned', 'closed')"),
+    )

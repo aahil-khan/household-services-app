@@ -1,7 +1,7 @@
 import os
 from flask import Flask , request, redirect
 from flask import render_template
-from application.models import User, Service , ServiceRequest, ServiceCategory, Review, Coupon
+from application.models import User, Service , ServiceRequest, ServiceCategory, Review, Coupon, Wallet, Payment
 from application.database import db
 from application.api import *
 from flask_restful import Api
@@ -64,6 +64,11 @@ def register_customer():
         pincode = request.form.get("pin_code")
         user = User(name=name, email=email, password=password,address=address, pincode=pincode, role="customer")
         db.session.add(user)
+        db.session.flush()
+
+        wallet = Wallet(user_id=user.id, balance=10000.0)
+        db.session.add(wallet)
+
         db.session.commit()
         return redirect("/customer_dashboard/" + str(user.id))
     
@@ -91,6 +96,11 @@ def register_professional():
 
         user = User(name=name, email=email, password=password,address=address, pincode=pincode, role="professional", experience=experience, contact=contact, category_id = category_id,approval_status = "waiting")
         db.session.add(user)
+        db.session.flush()
+
+        wallet = Wallet(user_id=user.id, balance=0.0)
+        db.session.add(wallet)
+
         db.session.commit()
         return redirect("/professional_dashboard/" + str(user.id))
     
@@ -125,8 +135,14 @@ def admin_dashboard():
 
     coupons = Coupon.query.all()
 
+    payments = Payment.query.all()
+    for payment in payments:
+        payment.customer_name = User.query.filter_by(id=payment.customer_id).first().name
+        payment.professional_name = User.query.filter_by(id=payment.professional_id).first().name
+        payment.service_name = ServiceRequest.query.filter_by(id=payment.servicereq_id).first().service.name
+
     users = User.query.filter_by(role="customer").all()
-    return render_template("admin_dashboard.html", services=services, professionals=professionals, service_requests=service_requests, role=request.args.get("role") , customers=users , coupons=coupons)
+    return render_template("admin_dashboard.html", services=services, professionals=professionals, service_requests=service_requests, role=request.args.get("role") , customers=users , coupons=coupons , payments=payments)
 
 @app.route("/admin_dashboard/create_service", methods=["GET", "POST"])
 def create_service():
@@ -266,12 +282,15 @@ def professional_dashboard(id):
         request.rating = Review.query.filter_by(servicereq_id=request.id).first().rating
         request.review = Review.query.filter_by(servicereq_id=request.id).first().comment
 
-    return render_template("professional_dashboard.html", user=user, open_service_requests=open_service_requests , assigned_service_requests=assigned_service_requests , closed_service_requests=closed_service_requests)
+    wallet = Wallet.query.filter_by(user_id=id).first()
+
+    return render_template("professional_dashboard.html",wallet=wallet, user=user, open_service_requests=open_service_requests , assigned_service_requests=assigned_service_requests , closed_service_requests=closed_service_requests)
 
 
 @app.route("/customer_dashboard/<int:id>", methods=["GET", "POST"])
 def customer_dashboard(id):
     user = User.query.filter_by(id=id).first()
+    wallet = Wallet.query.filter_by(user_id=id).first()
 
     if user is None or user.role != "customer":
         return redirect("/login")
@@ -283,7 +302,7 @@ def customer_dashboard(id):
         request.phone = User.query.filter_by(id=request.professional_id).first().contact
         request.professional_name = User.query.filter_by(id=request.professional_id).first().name
 
-    return render_template("customer_dashboard.html", id = user.id , user =user,  categories = categories , service_requests = service_requests)
+    return render_template("customer_dashboard.html", id = user.id , user =user, wallet = wallet, categories = categories , service_requests = service_requests)
 
 @app.route("/customer_dashboard/<int:id>/<string:category>", methods=["GET", "POST"])
 def customer_dashboard_category(id , category):
@@ -320,7 +339,9 @@ def customer_dashboard_category(id , category):
         if not is_assigned and not is_requested:
             available_services.append(service)
     services = available_services
-    return render_template("customer_dashboard_select.html", id = user.id,services = services, service_requests = service_requests)
+
+    wallet = Wallet.query.filter_by(user_id=id).first()
+    return render_template("customer_dashboard_select.html",wallet = wallet, id = user.id,services = services, service_requests = service_requests)
 
 
 @app.route("/customer_dashboard/search/<int:id>", methods=["GET", "POST"])
@@ -346,7 +367,8 @@ def customer_dashboard_search(id):
         print(booked_service_ids)
         services = [s for s in services if s.id not in booked_service_ids]
 
-    return render_template("customer_dashboard_search.html", id = user.id , services = services , type = search_type)
+    wallet = Wallet.query.filter_by(user_id=id).first()
+    return render_template("customer_dashboard_search.html", id = user.id ,wallet = wallet, services = services , type = search_type)
 
 
 @app.route("/professional_dashboard/search/<int:id>", methods=["GET", "POST"])
@@ -374,8 +396,9 @@ def professional_dashboard_search(id):
         for req in services_requests:
             req.customer_name = User.query.filter_by(id=req.customer_id).first().name
             req.contact = User.query.filter_by(id=req.customer_id).first().contact
+    wallet = Wallet.query.filter_by(user_id=id).first()
 
-    return render_template("professional_dashboard_search.html", user=user, services_requests=services_requests)
+    return render_template("professional_dashboard_search.html",wallet = wallet, user=user, services_requests=services_requests)
 
 @app.route("/rate_service/<int:id>", methods=["GET", "POST"])
 def rate_service(id):
@@ -384,10 +407,26 @@ def rate_service(id):
         service_request.service_name = Service.query.filter_by(id=service_request.service_id).first().name
         service_request.phone = User.query.filter_by(id=service_request.professional_id).first().contact
         service_request.professional_name = User.query.filter_by(id=service_request.professional_id).first().name
-        return render_template("rate_service.html", service_request=service_request)
+        service_request.price = service_request.service.base_price
+        message = request.args.get("message", "")
+        return render_template("rate_service.html", service_request=service_request, message=message)
     else:
         rating = request.form.get("rating")
         remarks = request.form.get("remarks")
+        coupon_code = request.form.get("coupon_code")
+        if coupon_code == "":
+            pass
+        else:
+            coupon = Coupon.query.filter_by(code=coupon_code).first()
+            if coupon is not None:
+                if coupon.valid_from > datetime.now() or coupon.valid_to < datetime.now():
+                    return redirect("/rate_service/" + str(id) + "?message=Coupon code is not valid")
+                coupon.current_uses += 1
+                if coupon.max_uses == coupon.current_uses:
+                    db.session.delete(coupon)
+            else:
+                return redirect("/rate_service/" + str(id) + "?message=Invalid coupon code")
+            
         review = Review(servicereq_id=id, rating=rating, comment=remarks)
         db.session.add(review)
         db.session.flush()  # Ensure the review ID is generated
@@ -398,6 +437,25 @@ def rate_service(id):
         service_request.status = "closed"
         service_request.review_id = review_id
         service_request.date_of_completion = datetime.now().strftime("%d-%m-%y")
+        
+        #payment
+        if coupon_code == "":
+            price = service_request.service.base_price
+        else:
+            price = service_request.service.base_price - (service_request.service.base_price * coupon.discount_percent / 100)
+            
+        
+        payment = Payment(customer_id=service_request.customer_id, professional_id=service_request.professional_id, amount=price , servicereq_id=service_request.id)
+        db.session.add(payment)
+
+        #update wallets
+        wallet_customer = Wallet.query.filter_by(user_id=service_request.customer_id).first()
+        wallet_professional = Wallet.query.filter_by(user_id=service_request.professional_id).first()
+
+        wallet_customer.balance -= price
+        wallet_professional.balance += price
+
+
         db.session.commit()
         return redirect("/customer_dashboard/" + str(service_request.customer_id))
 

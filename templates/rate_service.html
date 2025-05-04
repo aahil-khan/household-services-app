@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="container">
-    <h1><strong>Rate Service</strong></h1>
+    <h1><strong>Pay for Service</strong></h1>
     <form action="/rate_service/{{ service_request.id }}" method="POST">
         <label for="service_name"><strong>Service Name</strong></label>
         <p>{{ service_request.service_name }}</p>
@@ -42,9 +42,18 @@
         <label for="remarks"><strong>Remarks</strong></label>
         <textarea name="remarks" id="remarks" cols="30" rows="10"></textarea>
         <br>
+        <label for="coupon_code"><strong>Coupon Code</strong></label>
+        <input type="text" name="coupon_code" id="coupon_code" placeholder="Enter coupon code if any" />
+        <br>
+        <label for="price"><strong>price</strong></label>
+        <p>{{ service_request.price }}</p>
+        <br>
         <input type="submit" value="Submit" />
         <input type="button" value="Cancel" onclick="window.location.href='/customer_dashboard/{{ service_request.customer_id }}'"/>
     </form>
+    {% if message %}
+        <p style="color: red;">{{ message }}</p>
+    {% endif %}
 </div>
 </body>
 </html>

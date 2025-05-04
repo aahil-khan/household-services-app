@@ -13,6 +13,13 @@
         <a href="/login">Logout</a>
     </nav>
     <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Available Services</h1>
+            <div class="wallet-balance" style="background: #f0f0f0; padding: 15px; border-radius: 8px;">
+                <h3 style="margin: 0;">Wallet Balance</h3>
+                <p style="margin: 5px 0; font-size: 1.2em; font-weight: bold;">₹{{wallet.balance}}</p>
+            </div>
+        </div>
     
     <div>
         <h2>Available Services</h2>
@@ -48,6 +55,7 @@
 
     <div>
         <h2>Your Service History</h2>
+        {% if service_requests %}
         <table>
             <tr>
                 <th>ID</th>
@@ -72,9 +80,13 @@
             </tr>
             {% endfor %}
         </table>
+        {% else %}
+            <p>No service history available.</p>
+        {% endif %}
         <p><a href="/customer_dashboard/{{id}}">Go back</a></p>        
     </div>
 </div>
 </body>
 </html>
+``` 
 

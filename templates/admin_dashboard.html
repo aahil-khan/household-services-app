@@ -53,7 +53,46 @@
         <p>No services found</p>
     {% endif %}
     <p><a href="/admin_dashboard/create_service">Create new service</a></p>
-    
+    <h3>Coupons</h3>
+    {% if coupons %}
+    <div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Sno</th>
+                <th>Code</th>
+                <th>Discount</th>
+                <th>Expiry Date</th>
+                <th>Max Uses</th>
+                <th>Current Uses</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for coupon in coupons %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ coupon.code }}</td>
+                <td>{{ coupon.discount_percent }}%</td>
+                <td>{{ coupon.valid_to }}</td>
+                <td>{{ coupon.max_uses }}</td>
+                <td>{{ coupon.current_uses }}</td>
+                <td>
+                    <button onclick="window.location.href='/admin_dashboard/edit_coupon/{{ coupon.id }}'">edit</button> /
+                    <button onclick="
+                    fetch('/api/coupon/{{ coupon.id }}', {
+                        method: 'DELETE'
+                    }).then(() => window.location.reload())
+                ">delete</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+        <p>No coupons found</p>
+    {% endif %}
+    <p><a href="/admin_dashboard/create_coupon">Create new coupon</a></p>
 
     <h3>Professionals</h3>
     {% if professionals %}
@@ -202,46 +241,37 @@
     {% else %}
         <p>No service requests found</p>
     {% endif %}
-    <h3>Coupons</h3>
-    {% if coupons %}
+    {% if payments %}
+    <h3>Payments</h3>
     <div class="table-container">
     <table>
         <thead>
             <tr>
                 <th>Sno</th>
-                <th>Code</th>
-                <th>Discount</th>
-                <th>Expiry Date</th>
-                <th>Max Uses</th>
-                <th>Current Uses</th>
-                <th>Action</th>
+                <th>Customer Name</th>
+                <th>Professional Name</th>
+                <th>Service Name</th>
+                <th>Amount</th>
+                <th>Date</th>
             </tr>
         </thead>
         <tbody>
-            {% for coupon in coupons %}
+            {% for payment in payments %}
             <tr>
                 <td>{{ loop.index }}</td>
-                <td>{{ coupon.code }}</td>
-                <td>{{ coupon.discount_percent }}%</td>
-                <td>{{ coupon.valid_to }}</td>
-                <td>{{ coupon.max_uses }}</td>
-                <td>{{ coupon.current_uses }}</td>
-                <td>
-                    <button onclick="window.location.href='/admin_dashboard/edit_coupon/{{ coupon.id }}'">edit</button> /
-                    <button onclick="
-                    fetch('/api/coupon/{{ coupon.id }}', {
-                        method: 'DELETE'
-                    }).then(() => window.location.reload())
-                ">delete</button></td>
+                <td>{{ payment.customer_name }}</td>
+                <td>{{ payment.professional_name }}</td>
+                <td>{{ payment.service_name }}</td>
+                <td>{{ payment.amount }}</td>
+                <td>{{ payment.timestamp.date() }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     </div>
     {% else %}
-        <p>No coupons found</p>
+        <p>No payments found</p>
     {% endif %}
-    <p><a href="/admin_dashboard/create_coupon">Create new coupon</a></p>
     </div>
 </body>
 </html>
