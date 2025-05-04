@@ -48,6 +48,11 @@ class Review(db.Model):
     comment = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.now)
 
+    # Add rating validation constraint
+    __table_args__ = (
+        db.CheckConstraint('rating >= 1 AND rating <= 10', name='check_valid_rating'),
+    )
+
 
 class Wallet(db.Model):
     __tablename__ = 'Wallet'
@@ -55,6 +60,12 @@ class Wallet(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False, unique=True)
     balance = db.Column(db.Float, default=10000.0)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+    # Add balance constraint
+    __table_args__ = (
+        db.CheckConstraint('balance >= 0', name='check_positive_balance'),
+    )
+
 
 class Coupon(db.Model):
     __tablename__ = 'Coupon'
